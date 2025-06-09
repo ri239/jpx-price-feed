@@ -16,7 +16,7 @@ import yfinance as yf
 CHUNK   = 50      # ← 1 回に呼ぶティッカー数
 RETRY   = 2       # ← 失敗チャンクのリトライ回数
 N_DAYS  = 60      # ← 保存する営業日数
-OUTFILE = "daily_price_latest.csv"
+OUTFILE = "daily_price_latest.csv.gz"
 # --------------------------
 
 warnings.filterwarnings("ignore", category=FutureWarning)  # yfinance のお知らせ抑制
@@ -75,7 +75,7 @@ if not dfs:
     raise RuntimeError("❌ 取得ゼロ：API ブロックやネット障害を確認してください")
 
 out_df = pd.concat(dfs, ignore_index=True)
-out_df.to_csv(OUTFILE, index=False, encoding="utf-8")
+out_df.to_csv(OUTFILE, index=False, encoding="utf-8", compression="gzip")
 print(
     f"✅ {OUTFILE} written — rows: {len(out_df):,}, "
     f"file size: {Path(OUTFILE).stat().st_size/1_048_576:.1f} MB"
