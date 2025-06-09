@@ -1,0 +1,26 @@
+name: auto-update-price-csv
+
+on:
+  schedule:
+    - cron:  '0 16 * * 1-5'   # 平日 16:00 UTC = 翌 01:00 JST
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install --quiet yfinance pandas
+      - name: Run script
+        run: python update_csv.py
+      - name: Commit & push
+        run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "actions@github.com"
+          git add daily_price_latest.csv
+          git commit -m "auto: update price $(date -u '+%Y-%m-%d')" || echo "no changes"
+          git push
