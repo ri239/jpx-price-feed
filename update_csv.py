@@ -68,7 +68,7 @@ for i in range(0, len(tickers), CHUNK):
             continue
         sub["Ticker"] = tkr
         dfs.append(
-            sub[["Date", "Ticker", "Open", "High", "Low", "Close", "Volume"]]
+            sub[["Date", "Ticker", "Close", "Volume"]]
         )
 
 if not dfs:
