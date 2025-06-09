@@ -22,6 +22,6 @@ jobs:
         run: |
           git config --global user.name  "github-actions[bot]"
           git config --global user.email "actions@github.com"
-          git add daily_price_latest.csv
+          git add -A
           git commit -m "auto: update price $(date -u '+%Y-%m-%d')" || echo "no changes"
           git push
