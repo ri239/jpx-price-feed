@@ -1,4 +1,5 @@
 name: auto-update-price-csv
+permissions: {contents: write}   # ← ★★ 追加１行 ★★
 
 on:
   schedule:
