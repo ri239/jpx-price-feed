@@ -36,7 +36,7 @@ def fetch_chunk(symbols: list[str]) -> pd.DataFrame | None:
             period="3mo",
             interval="1d",
             group_by="ticker",
-            auto_adjust=False,        # ← adjust 明示で Warning 抑制
+            auto_adjust=True,         # 権利調整済み終値を使用
             threads=True,
             progress=False,
         )
@@ -67,9 +67,9 @@ for i in range(0, len(tickers), CHUNK):
         if sub.empty:
             continue
         sub["Ticker"] = tkr
-        dfs.append(
-            sub[["Date", "Ticker", "Close", "Volume"]]
-        )
+        # 利用可能な OHLCV 列をすべて保存（auto_adjust=True で Open/High/Low/Close は調整済み）
+        ohlcv_cols = [c for c in ["Open", "High", "Low", "Close", "Volume"] if c in sub.columns]
+        dfs.append(sub[["Date", "Ticker"] + ohlcv_cols])
 
 if not dfs:
     raise RuntimeError("❌ 取得ゼロ：API ブロックやネット障害を確認してください")
