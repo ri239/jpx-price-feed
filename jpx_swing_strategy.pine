@@ -97,9 +97,7 @@ sig1 = ta.crossover(ema_fast, ema_mid)
 
 // S2 : 上昇トレンド中の押し目回復
 //      条件: EMA5>EMA25、前日終値≤前日EMA5（押し目）、当日終値>EMA5（回復）
-sig2 = ema_fast > ema_mid
-      and close[1] <= ema_fast[1]
-      and close    >  ema_fast
+sig2 = ema_fast > ema_mid and close[1] <= ema_fast[1] and close > ema_fast
 
 // S3 : 20 日高値ブレイクアウト（前日までの 20 日最高値を更新）
 sig3 = close > ta.highest(close[1], 20) and ema_fast > ema_mid
@@ -164,9 +162,7 @@ if in_long
     v_peak := math.max(nz(v_peak, avg_px), close)
 
     // 含み益ステージに応じた ATR 乗数を選択
-    atr_mult = cur_ret >= i_profit_s3 ? i_atr_s3
-             : cur_ret >= i_profit_s2 ? i_atr_s2
-             : i_atr_s1
+    atr_mult = cur_ret >= i_profit_s3 ? i_atr_s3 : cur_ret >= i_profit_s2 ? i_atr_s2 : i_atr_s1
 
     // トレーリングストップ更新（下方には動かさない）
     new_trail    = v_peak - atr_mult * atr_val
@@ -185,18 +181,16 @@ if in_long
         strategy.close("long", comment="TS")
     else
         // ATR トレーリング + ハードストップ
-        exit_tag = cur_ret >= i_profit_s3 ? "S3"
-                 : cur_ret >= i_profit_s2 ? "S2"
-                 : "S1"
+        exit_tag = cur_ret >= i_profit_s3 ? "S3" : cur_ret >= i_profit_s2 ? "S2" : "S1"
         strategy.exit("trail", from_entry="long", stop=v_final_stop, comment=exit_tag)
 
 // ────────────────────────────────────────────
 //  チャート描画
 // ────────────────────────────────────────────
 // EMA ライン
-plot(ema_fast, "EMA" + str.tostring(i_ema_fast), color=color.new(#2196F3, 0), linewidth=1)
-plot(ema_mid,  "EMA" + str.tostring(i_ema_mid),  color=color.new(#FF9800, 0), linewidth=1)
-plot(ema_slow, "EMA" + str.tostring(i_ema_slow), color=color.new(#F44336, 0), linewidth=2)
+plot(ema_fast, "EMA5",  color=color.new(#2196F3, 0), linewidth=1)
+plot(ema_mid,  "EMA25", color=color.new(#FF9800, 0), linewidth=1)
+plot(ema_slow, "EMA75", color=color.new(#F44336, 0), linewidth=2)
 
 // ストップライン（保有中のみ表示）
 plot(v_final_stop, "トレールストップ",
@@ -251,10 +245,9 @@ var table info_table = table.new(position.top_right, 2, 6,
 if barstate.islast
     avg_px_disp = strategy.position_avg_price
     cur_ret_pct = in_long ? (close - avg_px_disp) / avg_px_disp * 100 : 0.0
-    stage_str   = not in_long              ? "─"
-                : cur_ret_pct / 100 >= i_profit_s3 ? "S3 中長期延長"
-                : cur_ret_pct / 100 >= i_profit_s2 ? "S2 利益延長"
-                : "S1 スイング"
+    string stage_str = "─"
+    if in_long
+        stage_str := cur_ret_pct / 100.0 >= i_profit_s3 ? "S3 中長期延長" : cur_ret_pct / 100.0 >= i_profit_s2 ? "S2 利益延長" : "S1 スイング"
 
     table.cell(info_table, 0, 0, "JPX-Swing",   text_color=color.silver, text_size=size.small)
     table.cell(info_table, 1, 0, "状態",         text_color=color.silver, text_size=size.small)
