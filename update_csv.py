@@ -4,7 +4,7 @@
 #   ・タイムアウト／欠損は最大 RETRY 回リトライ
 #   ・空データ銘柄は自動スキップ
 #   ・FutureWarning を非表示
-#   ・最終出力列：Date, Ticker, Open, High, Low, Close, Volume
+#   ・最終出力列：Date, Ticker, Close, Volume
 
 import warnings, time
 from pathlib import Path
